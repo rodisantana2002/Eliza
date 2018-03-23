@@ -1,78 +1,154 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package sisesp;
 
-import java.util.Enumeration;
-import java.util.Vector;
-import javax.swing.JFrame;
+ 
+import java.util.*;
+import javax.swing.*;
+
 
 /**
+ * The <code>RuleVariable</code> class implements the rule variable class
+ * used in a boolean rule base.
  *
- * @author rodolfosmac
+ * @author Joseph P. Bigus
+ * @author Jennifer Bigus
+ *
+ * @copyright
+ * Constructing Intelligent Agents using Java
+ * (C) Joseph P. Bigus and Jennifer Bigus 2001
+ *
  */
 public class RuleVariable extends Variable {
-    protected BooleanRuleBase rb;
-    protected Vector clauseRefs;
-    protected String promptText;
-    protected String ruleName;
+  protected BooleanRuleBase rb;
+  protected Vector clauseRefs;  // clauses which refer to this var
+  protected String promptText;  // used to prompt user for value
+  protected String ruleName;    // if value is inferred, null = user provided
 
 
-    public RuleVariable(BooleanRuleBase rb, String Name) {
-        super(Name);
-        this.rb = rb;
-        //rb.addVariable(this);
-        clauseRefs = new Vector();
-    }
+  /**
+   * Creates a new rule variable object with specified name.
+   *
+   * @param rb the BooleanRuleBase object this rule variable belongs to
+   * @param name the String object that contains the name of the variable
+   */
+  public RuleVariable(BooleanRuleBase rb, String name) {
+    super(name);
+    this.rb = rb;
+    rb.addVariable(this);
+    clauseRefs = new Vector();
+  }
 
-    public void setValue(String val) {
-        value = val;
-        updateClauses();
-    }
 
-    // prompt a user to provide a value for a variable during inferencing
-    public String askUser() {
-        String answer = null;
-        JFrame frame = new JFrame();
-//        RuleVarDialog dlg = new RuleVarDialog(frame, "Ask User for Value", true);
-//        
-//        dlg.setLocation(200,200);
-//        dlg.setData(this);
-//        dlg.show();
-//        answer = dlg.getData();
-        
-        setValue(answer);
-        return value;
-    }
+  /**
+   * Set the value of the variable and retests all clauses that refer to
+   * this variable.
+   *
+   * @param value the String object that contains the new value
+   */
+  public void setValue(String value) {
+    this.value = value;
+    updateClauses();
+  }
 
-    public void addClauseRef(Clause ref) {
-        clauseRefs.addElement(ref);
-    }
 
-    public void updateClauses() {
-        Enumeration enums = clauseRefs.elements();
-        
-        while (enums.hasMoreElements()) {
-            ((Clause) enums.nextElement()).check(); // retest the clause
-        }
+  /**
+   * Prompts the user to provide a value for a variable during backward
+   * inferencing (set to null if user cancels out of dialog).
+   *
+   * @return the String object that contains the user response
+   */
+  public String askUser() {
+    String answer = null;
+
+    // position dialog over parent dialog
+    JFrame frame = new JFrame();
+    RuleVarDialog dlg = new RuleVarDialog(frame, "Ask User for Value", true);
+
+    dlg.setLocation(200, 200);
+    dlg.setData(this);
+    dlg.show();
+    answer = dlg.getData();  // retrieve user value
+    setValue(answer);  // set value, update clauses
+    return value;
+  }
+
+
+  /**
+   *  Adds a reference to a rule clause.
+   *
+   * @param ref the Clause object to be added
+   */
+  public void addClauseRef(Clause ref) {
+    clauseRefs.addElement(ref);
+  }
+
+
+  /**
+   *  Checks all rule clauses that refer to this variable.
+   */
+  public void updateClauses() {
+    Enumeration enums = clauseRefs.elements();
+
+    while (enums.hasMoreElements()) {
+      ((Clause) enums.nextElement()).check();  // retest the truth condition
     }
-    public void setRuleName(String rname) {
-        ruleName = rname;
-    }
-    
-    public void setPromptText(String promptText){
-        this.promptText = promptText;
-    }
-    
-    public String getPromptText(){
-        return promptText;
-    }
-    
-    public void computeStatistics(String inValue){}
-    
-    public int normalize(String inValue, float[] outArray, int inx){
-        return inx;
-    }
+  }
+
+
+  /**
+   * Sets the rule name.
+   *
+   * @param ruleName the String object that contains the name
+   *
+   */
+  public void setRuleName(String ruleName) {
+    this.ruleName = ruleName;
+  }
+
+
+  /**
+   * Sets the prompt text for this variable.
+   *
+   * @param prompText the String object that contains the prompt text
+   *
+   */
+  public void setPromptText(String prompText) {
+    this.promptText = prompText;
+  }
+
+
+  /**
+   * Retrieves the prompt text for this variable.
+   *
+   * @return the String object that contains the prompt text
+   *
+   */
+  public String getPromptText() {
+    return promptText;
+  }
+
+
+  /**
+   * Not used.
+   *
+   * @param inValue the String object
+   *
+   */
+  public void computeStatistics(String inValue) {}
+  ;
+
+
+  /**
+   * Not used.
+   *
+   * @param inValue the String object
+   * @param outArray the float[] object
+   * @param inx the int object
+   *
+   * @return the int object
+   *
+   */
+  public int normalize(String inValue, float[] outArray, int inx) {
+    return inx;
+  }
 }
+

@@ -1,159 +1,438 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package sisesp;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Stack;
-import java.util.Vector;
-import javax.swing.JTextArea;
+import java.util.*;
+import javax.swing.*;
+
 
 /**
+ * The <code>BooleanRuleBase</code> class implements a set of rules and rule
+ * variables along with methods for forward and backward chaining.
  *
- * @author rodolfosmac
+ * @author Joseph P. Bigus
+ * @author Jennifer Bigus
+ *
+ * @copyright
+ * Constructing Intelligent Agents using Java
+ * (C) Joseph P. Bigus and Jennifer Bigus 1997, 2001
+ *
  */
-public class BooleanRuleBase implements RuleBase{
-    private String name;
-    public Hashtable variableList = new Hashtable();
-    public Clause clauseVarList[];
-    public  Vector ruleList = new Vector();
-    public Vector conclusionVarList;
-    public Rule rulePtr;
-    public Clause clausePtr;
-    public Stack goalClauseStack = new Stack();
-    //public Hashtable effectors;
-    public Hashtable sensors;
-    public Vector factList;
-    public JTextArea textArea;
-    
-    public BooleanRuleBase(String name){
-        this.name = name;
+public class BooleanRuleBase implements RuleBase {
+  String name;
+  Hashtable variableList = new Hashtable();  // all variables in the rulebase
+  Clause clauseVarList[];
+  Vector ruleList = new Vector();  // list of all rules
+  Vector conclusionVarList;        // queue of variables
+  Rule rulePtr;                    // working pointer to current rule
+  Clause clausePtr;                // working pointer to current clause
+  Stack goalClauseStack = new Stack();  // for goals (cons clauses) and subgoals
+  Hashtable effectors;
+  Hashtable sensors;
+  Vector factList;
+  JTextArea textArea1;
+
+
+  /**
+   * Sets the text area for the display of information.
+   *
+   * @param txtArea the JTextArea to be used for the display of information
+   */
+  public void setDisplay(JTextArea txtArea) {
+    textArea1 = txtArea;
+  }
+
+
+  /**
+   * Creates a <code>BooleanRuleBase</code> with the given name.
+   *
+   * @param name the String that contains the name of the rule base
+   */
+  public BooleanRuleBase(String name) {
+    this.name = name;
+  }
+
+
+  /**
+   * Adds the given text to the trace information.
+   *
+   * @param text  the String that contains the text to be displayed as part of the
+   *              trace information
+   */
+  public void trace(String text) {
+    if (textArea1 != null) {
+      textArea1.append(text);
     }
-    
-    @Override
-    public void setDisplay(JTextArea textArea) {
-        this.textArea = this.textArea;
+  }
+
+
+  /**
+   * Displays all variables and their values in the given text area.
+   *
+   * @param textArea  the JTextArea where the variables and their values are
+   *                  displayed
+   */
+  public void displayVariables(JTextArea textArea) {
+    Enumeration enums = variableList.elements();
+
+    while (enums.hasMoreElements()) {
+      RuleVariable temp = (RuleVariable) enums.nextElement();
+
+      textArea.append("\n" + temp.name + " value = " + temp.value);
+    }
+  }
+
+
+  /**
+   * Displays all the rules and  facts in text format in the given text area.
+   *
+   * @param textArea  the JTextArea where the rules and facts are displayed
+   */
+  public void displayRules(JTextArea textArea) {
+    textArea.append("\n" + name + " Rule Base: " + "\n");
+    Enumeration enums = ruleList.elements();
+
+    while (enums.hasMoreElements()) {
+      Rule temp = (Rule) enums.nextElement();
+
+      temp.display(textArea);
     }
 
-    @Override
-    public void trace(String text) {}
+    // now display the facts
+    if (factList != null) {
+      enums = factList.elements();
+      while (enums.hasMoreElements()) {
+        Fact temp = (Fact) enums.nextElement();
 
-    @Override
-    public void displayVariables(JTextArea textArea) {
-        Enumeration enums = variableList.elements();
-        while(enums.hasMoreElements()){
-            RuleVariable temp = (RuleVariable) enums.nextElement();
-            textArea.append("\n" + temp.name + " value = " + temp.value);
+        temp.display(textArea);
+      }
+    }
+  }
+
+
+  /**
+   * Dislays all rules in the conflict set.
+   *
+   * @param ruleSet the Vector that contains the conflict set of rules
+   */
+  public void displayConflictSet(Vector ruleSet) {
+    trace("\n" + " -- Rules in conflict set:\n");
+    Enumeration enums = ruleSet.elements();
+
+    while (enums.hasMoreElements()) {
+      Rule temp = (Rule) enums.nextElement();
+
+      trace(temp.name + "(" + temp.numAntecedents() + "), ");
+    }
+  }
+
+
+  /**
+   * Resets the rule base for another round of inferencing.
+   */
+  public void reset() {
+    trace("\n --- Setting all " + name + " variables to null");
+    Enumeration enums = variableList.elements();
+
+    while (enums.hasMoreElements()) {
+      RuleVariable temp = (RuleVariable) enums.nextElement();
+
+      temp.setValue(null);
+    }
+    if (factList != null) {
+      enums = factList.elements();
+      while (enums.hasMoreElements()) {
+        Fact temp = (Fact) enums.nextElement();
+
+        temp.fired = false;
+      }
+    }
+    Enumeration enum2 = ruleList.elements();
+
+    while (enum2.hasMoreElements()) {
+      Rule temp = (Rule) enum2.nextElement();
+
+      temp.reset();  // set fired flag to false
+    }
+  }
+
+
+  /**
+   * Determines if the given goal is true by finding the set of rules that
+   * refer to the goal in their consequent clause and then testing the
+   * antecedent clauses to determine if the rule should fire. If an antecedent
+   * clause cannot be tested because a variable is unknown, that variable becomes
+   * the new goal variable and the process recurses until the given goal is found
+   * to be true or false.
+   *
+   * @param goalVarName the String that contains the name fo the goal variable
+   */
+  public void backwardChain(String goalVarName) {
+    RuleVariable goalVar = (RuleVariable) variableList.get(goalVarName);
+    Enumeration goalClauses = goalVar.clauseRefs.elements();
+
+    while (goalClauses.hasMoreElements()) {
+      Clause goalClause = (Clause) goalClauses.nextElement();
+
+      if (goalClause.consequent == false) {
+        continue;
+      }
+      goalClauseStack.push(goalClause);
+      Rule goalRule = goalClause.getRule();
+      Boolean ruleTruth = goalRule.backChain();  // find rule truth value
+
+      if (ruleTruth == null) {
+        trace("\nRule " + goalRule.name + " is null, can't determine truth value.");
+      } else if (ruleTruth.booleanValue() == true) {
+
+        // rule is OK, assign consequent value to variable
+        goalVar.setValue(goalClause.rhs);
+        goalVar.setRuleName(goalRule.name);
+        goalClauseStack.pop();                   // clear item from subgoal stack
+        trace("\nRule " + goalRule.name + " is true, setting " + goalVar.name + ": = " + goalVar.value);
+        if (goalClauseStack.empty() == true) {
+          trace("\n +++ Found Solution for goal: " + goalVar.name);
+          break;                                 // for now, only find first solution, then stop
         }
+      } else {
+        goalClauseStack.pop();                   // clear item from subgoal stack
+        trace("\nRule " + goalRule.name + " is false, can't set " + goalVar.name);
+      }
+    }                                            // endwhile
+    if (goalVar.value == null) {
+      trace("\n +++ Could Not Find Solution for goal: " + goalVar.name);
     }
-        
-    public void displayConflictSet(Vector ruleSet){
-        textArea.append("\n---Rules in conflit set:\n");
-        Enumeration enums = ruleSet.elements();
-        while (enums.hasMoreElements()){
-            Rule temp = (Rule) enums.nextElement();
-            textArea.append(temp.name + "(" + temp.numAntecedents() + "), ");
-        }
+  }
+
+
+  /**
+   * Finds the set of rules that can fire when forward chaining.
+   *
+   * @param test  the boolean value that determines if the antecedents should be
+   *              tested (<code>true</code>) or just checked (<code>false</code>)
+   * @return the Vector of rules that can fire
+   */
+  public Vector match(boolean test) {
+    Vector matchList = new Vector();
+    Enumeration enums = ruleList.elements();
+
+    while (enums.hasMoreElements()) {
+      Rule testRule = (Rule) enums.nextElement();
+
+      if (test) {
+        testRule.check();  // test the rule antecedents
+      }
+      if (testRule.truth == null) {
+        continue;
+      }
+
+      // fire the rule only once for now
+      if ((testRule.truth.booleanValue() == true) && (testRule.fired == false)) {
+        matchList.addElement(testRule);
+      }
     }
+    displayConflictSet(matchList);
+    return matchList;
+  }
 
-    @Override
-    public void reset() {}
 
-    @Override
-    public void backwardChain(String goalVarName) {
-        RuleVariable goalVar = (RuleVariable) variableList.get(goalVarName);
-        Enumeration goalClauses = goalVar.clauseRefs.elements();
-        
-        while(goalClauses.hasMoreElements()){
-            Clause goalClause = (Clause) goalClauses.nextElement();
-            
-            if(goalClause.consequent.booleanValue() == false){
-                continue;
-            }
-            
-            goalClauseStack.push(goalClause);
-            Rule goalRule = goalClause.getRule();
-            Boolean ruleTruth = goalRule.backChain();
-            
-            if(ruleTruth == null){
-                trace("\nRule " + goalRule.name + " is null, can´t determine truth value.");
-            }
-            else{
-                goalVar.setValue(goalClause.rhs);
-                goalVar.setRuleName(goalRule.name);
-                goalClauseStack.pop();
-                trace("\nRule " + goalRule.name + " is true, setting " + goalVar.name + ": = " + goalVar.value);
-                if(goalClauseStack.empty()){
-                    trace("\n +++ Found Solution for goal: " + goalVar.name);
-                    break;
-                }
-                else{
-                    goalClauseStack.pop();
-                    trace("\nRule " + goalRule.name + " is false, cant set " + goalVar.name);
-                }
-            }
-        }
-        if(goalVar.value ==null){
-            trace("\n +++ Could Not Find Solution for goal: " + goalVar.name);            
-        }
+  /**
+   * Selects a rule to fire when forward chaining, based on specificity.
+   *
+   * @param ruleSet the Vector of rules that can fire
+   *
+   * @return the selected rule
+   */
+  public Rule selectRule(Vector ruleSet) {
+    Enumeration enums = ruleSet.elements();
+    long numClauses;
+    Rule nextRule;
+    Rule bestRule = (Rule) enums.nextElement();
+    long max = bestRule.numAntecedents();
+
+    while (enums.hasMoreElements()) {
+      nextRule = (Rule) enums.nextElement();
+      if ((numClauses = nextRule.numAntecedents()) > max) {
+        max = numClauses;
+        bestRule = nextRule;
+      }
     }
+    return bestRule;
+  }
 
-    @Override
-    public void forwardChain() {
-        Vector conflitRuleSet = new Vector();
-        
-        conflitRuleSet = match(true);
-        while(conflitRuleSet.size()>0){
-            Rule selected = selectRule(conflitRuleSet);
-            selected.fire();
-            conflitRuleSet = match(false);
-        }  
+
+  /**
+   * Fires rules, generating new data, based on the initial set of data. The
+   * process repeats with the new data until no more rules and be fired.
+   */
+  public void forwardChain() {
+    Vector conflictRuleSet = new Vector();
+
+    // first test all rules, based on initial data
+    conflictRuleSet = match(true);  // see which rules can fire
+    while (conflictRuleSet.size() > 0) {
+      Rule selected = selectRule(conflictRuleSet);  // select the "best" rule
+
+      selected.fire();  // fire the rule, do the consequent action, update all clauses and rules
+      conflictRuleSet = match(false);  // see which rules can fire
     }
+  }
 
-    @Override
-    public Vector getGoalVariables() {return null;}
 
-    public Vector match(boolean test) {
-        Vector matchList = new Vector();
-        Enumeration enums = ruleList.elements();
-        
-        while(enums.hasMoreElements()){
-            Rule testRule = (Rule) enums.nextElement();
-            
-            if(test){
-                testRule.check();
-            }
-            if(testRule.truth == null){
-                continue;
-            }
-            if((testRule.truth.booleanValue() == true) && (testRule.fired == false)){
-                matchList.addElement(testRule);
-            }
-        }
-        displayConflictSet(matchList);        
-        return matchList;
+  /**
+   * Adds an effector and effector name to the rule base.
+   *
+   * @param obj           the Object that contains the effector
+   * @param effectorName  the String that contains the name of the effector
+   */
+  public void addEffector(Object obj, String effectorName) {
+    if (effectors == null) {
+      effectors = new Hashtable();
     }
-    
-    
-    public Rule selectRule(Vector ruleSet){
-        Enumeration enums = ruleSet.elements();
-        long numClauses;
-        Rule nextRule;
-        Rule bestRule = (Rule) enums.nextElement();
-        long max = bestRule.numAntecedents();
-        
-        while (enums.hasMoreElements()){
-            nextRule = (Rule) enums.nextElement();
-            if((numClauses = nextRule.numAntecedents())>max){
-                max = numClauses;
-                bestRule = nextRule;
-            }
-        }
-        return bestRule;
+    effectors.put(effectorName, obj);
+  }
+
+
+  /**
+   * Retrieves the effector associated with the given name.
+   *
+   * @param effectorName  the String that contains the name of the effector to be
+   *                      be retrieved
+   *
+   * @return the effector object associated with the given name
+   */
+  public Object getEffectorObject(String effectorName) {
+    return effectors.get(effectorName);
+  }
+
+
+  /**
+   * Adds a sensor and sensor name to the rule base.
+   *
+   * @param obj         the Object that contains the sensor
+   * @param sensorName  the String that contains the name of the sensor
+   */
+  public void addSensor(Object obj, String sensorName) {
+    if (sensors == null) {
+      sensors = new Hashtable();
     }
+    sensors.put(sensorName, obj);
+  }
 
 
+  /**
+   * Retrieves the sensor associated with the given name.
+   *
+   * @param sensorName  the String that contains the name of the sensor to be
+   *                    be retrieved
+   *
+   * @return the sensor object associated with the given name
+   */
+  public Object getSensorObject(String sensorName) {
+    return sensors.get(sensorName);
+  }
+
+
+  /**
+   * Initializes the facts associated with this rule base.
+   */
+  public void initializeFacts() {
+    if (factList != null) {
+      Enumeration enums = factList.elements();
+
+      while (enums.hasMoreElements()) {
+        Fact fact = (Fact) enums.nextElement();
+
+        fact.asserts(this);
+      }
+    }
+  }
+
+
+  /**
+   * Adds a fact to this rule base.
+   *
+   * @param fact  the Fact to be added to the rule base
+   */
+  public void addFact(Fact fact) {
+    if (factList == null) {
+      factList = new Vector();
+    }
+    factList.addElement(fact);
+  }
+
+
+  /**
+   * Adds a variable to this rule base
+   *
+   * @param variable the Variable to be added to the rule base
+   */
+  public void addVariable(RuleVariable variable) {
+    variableList.put(variable.getName(), variable);
+  }
+
+
+  /**
+   * Retrieves the list of variables.
+   *
+   * @return a Hashtable object that contains the list of variables
+   *         defined in this ruleset
+   */
+  public Hashtable getVariables() {
+    return (Hashtable) variableList.clone();
+  }
+
+
+  /**
+   * Retreives all the variables referenced in the consequent of any rule in
+   * the rule base.
+   *
+   * @return the Vector that contains the goal variables
+   */
+  public Vector getGoalVariables() {
+    Vector goalVars = new Vector();
+    Enumeration enums = variableList.elements();
+
+    while (enums.hasMoreElements()) {
+      RuleVariable ruleVar = (RuleVariable) enums.nextElement();
+      Vector goalClauses = ruleVar.clauseRefs;
+
+      if ((goalClauses != null) && (goalClauses.size() != 0)) {
+        goalVars.addElement(ruleVar);
+      }
+    }
+    return goalVars;
+  }
+
+
+  /**
+   * Retrives the variable associated with the given name.
+   *
+   * @param name  the String that contains the name of the variable
+   *
+   * @return the variable associated with the given name
+   */
+  public RuleVariable getVariable(String name) {
+    if (variableList.containsKey(name)) {
+      return (RuleVariable) variableList.get(name);
+    }
+    return null;
+  }
+
+
+  /**
+   * Sets the value of the variable associated with the given name.
+   *
+   * @param name  the String that contains the name of the variable
+   * @param value the String object that contains
+   *
+   * @return the variable associated with the given name
+   */
+  public void setVariableValue(String name, String value) {
+    RuleVariable variable = getVariable(name);
+
+    if (variable != null) {
+      variable.setValue(value);
+    } else {
+      System.out.println("BooleanRuleBase: Can't set value, variable " + name + " is not defined!");
+    }
+  }
 }
