@@ -24,7 +24,6 @@ public class Rule {
   Boolean truth;         // states = (null=unknown, true, or false)
   boolean fired = false;
 
-
   /**
    * Creates a <code>Rule</code> for the given rule base, with the given name,
    * antecedent and consequent.
@@ -47,7 +46,6 @@ public class Rule {
     truth = null;
   }
 
-
   /**
    * Creates a <code>Rule</code> for the given rule base, with the given name,
    * one or more antecedents and consequent.
@@ -58,6 +56,7 @@ public class Rule {
    * @param lhsClauses the Clause[] object
    * @param rhs   the consequent clause of this rule
    */
+
   public Rule(BooleanRuleBase rb, String name, Clause[] lhsClauses, Clause rhs) {
     this.rb = rb;
     this.name = name;
@@ -169,7 +168,8 @@ public class Rule {
         rb.backwardChain(antecedents[i].lhs.name);
       }
       if (antecedents[i].truth == null) {  // we couldn't prove true or false
-        antecedents[i].lhs.askUser();               // so ask user for help
+
+          antecedents[i].lhs.askUser();               // so ask user for help
         truth = antecedents[i].check();             // redundant?
       }                                             // endif
       if (antecedents[i].truth.booleanValue() == true) {
