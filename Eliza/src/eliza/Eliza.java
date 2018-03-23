@@ -35,7 +35,7 @@ public class Eliza {
     
     reflections = Collections.unmodifiableMap(ref);
     ArrayList<PhraseMatcher> babbleTmp = new ArrayList<PhraseMatcher>();
-    babbleTmp.add(new PhraseMatcher("i need (.*)", new String[] {"Why do you need {0}?", "Would it really help you to get {0}?", "Are you sure you need {0}?"}));
+    babbleTmp.add(new PhraseMatcher(" eu preciso need (.*)", new String[] {"Why do you need {0}?", "Would it really help you to get {0}?", "Are you sure you need {0}?"}));
     babbleTmp.add(new PhraseMatcher("why don'?t you ([^\\?]*)\\??", new String[] {"Do you really think I don't {0}?", "Perhaps eventually I will {0}.", "Do you really want me to {0}?"}));
     babbleTmp.add(new PhraseMatcher("why can'?t I ([^\\?]*)\\??", new String[] {"Do you think you should be able to {0}?","If you could {0}, what would you do?", "I don't know -- why can't you {0}?", "Have you really tried?"}));
     babbleTmp.add(new PhraseMatcher("i can'?t (.*)", new String[] {"How do you know you can't {0}?", "Perhaps you could {0} if you tried.", "What would it take for you to {0}?"}));
