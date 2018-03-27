@@ -137,6 +137,7 @@ public class RuleFrame extends JFrame {
             }
         });
 
+        RuleBaseMenu.setText("RuleBase");
         //--adicionado
         InvestimentosRadioButtonMenuItem.setText("Investimentos");
         InvestimentosRadioButtonMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -145,6 +146,7 @@ public class RuleFrame extends JFrame {
             }
         });
 
+        
         ruleBaseButtonGroup.add(InvestimentosRadioButtonMenuItem);
         //--adicionado
 
