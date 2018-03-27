@@ -201,7 +201,7 @@ public class RuleFrame extends JFrame {
         ruleBaseButtonGroup.add(InvestimentosRadioButtonMenuItem);
         //--adicionado
 
-        GoalComboBox.setBounds(new Rectangle(170, 51, 126, 23));
+        GoalComboBox.setBounds(new Rectangle(170, 51, 145, 23));
         buttonGroup.add(forwardChainRadioButton);
         buttonGroup.add(backChainRadioButton);
         jLabel1.setText("Goal");
@@ -438,9 +438,9 @@ public class RuleFrame extends JFrame {
         idade.setLabels("1-20 21-30 31-40 41-50 51-60 61-70 71-100");
         idade.setPromptText("Qual a sua faixa etária?");
         
-        RuleVariable investimentoType = new RuleVariable(rb, "investimentoType");
-        investimentoType.setLabels("renda-fixa investimento-cob fundo-di previdencia-privada acoes-bolsa tesouro-direto poupanca dolar");
-        investimentoType.setPromptText("Qual o tipo de Investimento?");
+        RuleVariable investimento = new RuleVariable(rb, "investimento");
+        investimento.setLabels("Renda-Fixa Investimento-COB Fundo-DI Previdencia-Privada Acoes-Bolsa Tesouro-Direto Poupanca Dolar");
+        investimento.setPromptText("Qual o tipo de Investimento?");
 
         RuleVariable perfil = new RuleVariable(rb, "perfil");
         perfil.setLabels("arrojado moderado conservador");
@@ -473,46 +473,13 @@ public class RuleFrame extends JFrame {
         Condition cLessThan = new Condition("<");
 
         // define rules
-        Rule Poupanca = new Rule(rb, "poupanca", new Clause[]{new Clause(investimentoType, cEquals, "poupanca"),
-            new Clause(perfil, cEquals, "conservador"),
-            new Clause(experiencia, cEquals, "nenhuma")},
-                new Clause(investimentoType, cEquals, "poupanca"));
+        Rule Poupanca = new Rule(rb, "Poupanca", new Clause[]{new Clause(perfil, cEquals, "conservador"),
+                                                              new Clause(liquidez, cEquals, "imediato"),
+                                                              new Clause(ticket, cEquals, "0-100"),
+                                                              new Clause(experiencia, cEquals, "nenhuma")},
+                                                 new Clause(investimento, cEquals, "Poupanca"));
             
-        
-//        Rule Bicycle = new Rule(rb, "bicycle", new Clause[]{new Clause(vehicleType, cEquals, "cycle"),
-//            new Clause(num_wheels, cEquals, "2"),
-//            new Clause(motor, cEquals, "no")},
-//                new Clause(vehicle, cEquals, "Bicycle"));
-
-//        Rule Tricycle = new Rule(rb, "tricycle", new Clause[]{new Clause(vehicleType, cEquals, "cycle"),
-//            new Clause(num_wheels, cEquals, "3"),
-//            new Clause(motor, cEquals, "no")},
-//                new Clause(vehicle, cEquals, "Tricycle"));
-//        Rule Motorcycle = new Rule(rb, "motorcycle", new Clause[]{new Clause(vehicleType, cEquals, "cycle"),
-//            new Clause(num_wheels, cEquals, "2"),
-//            new Clause(motor, cEquals, "yes")},
-//                new Clause(vehicle, cEquals, "Motorcycle"));
-//        Rule SportsCar = new Rule(rb, "sportsCar", new Clause[]{new Clause(vehicleType, cEquals, "automobile"),
-//            new Clause(size, cEquals, "small"),
-//            new Clause(num_doors, cEquals, "2")},
-//                new Clause(vehicle, cEquals, "Sports_Car"));
-//        Rule Sedan = new Rule(rb, "sedan", new Clause[]{new Clause(vehicleType, cEquals, "automobile"),
-//            new Clause(size, cEquals, "medium"),
-//            new Clause(num_doors, cEquals, "4")},
-//                new Clause(vehicle, cEquals, "Sedan"));
-//        Rule MiniVan = new Rule(rb, "miniVan", new Clause[]{new Clause(vehicleType, cEquals, "automobile"),
-//            new Clause(size, cEquals, "medium"),
-//            new Clause(num_doors, cEquals, "3")},
-//                new Clause(vehicle, cEquals, "MiniVan"));
-//        Rule SUV = new Rule(rb, "SUV", new Clause[]{new Clause(vehicleType, cEquals, "automobile"),
-//            new Clause(size, cEquals, "large"),
-//            new Clause(num_doors, cEquals, "4")},
-//                new Clause(vehicle, cEquals, "Sports_Utility_Vehicle"));
-//        Rule Cycle = new Rule(rb, "Cycle", new Clause(num_wheels, cLessThan, "4"), new Clause(vehicleType, cEquals, "cycle"));
-//        Rule Automobile = new Rule(rb, "Automobile", new Clause[]{new Clause(num_wheels, cEquals, "4"),
-//            new Clause(motor, cEquals, "yes")},
-//                new Clause(vehicleType, cEquals, "automobile"));
-
+       
     }
     
     /**
@@ -660,8 +627,8 @@ public class RuleFrame extends JFrame {
         traceTextArea.append("\n --- Setting Values for Investimentos ForwardChain Demo ---\n ");
 
         // poderia ser Poupança
-        rb.setVariableValue("idade", null);
-        rb.setVariableValue("investimentoType", null);                
+        rb.setVariableValue("investimento", null);                
+        rb.setVariableValue("idade", "0-20");        
         rb.setVariableValue("perfil", "conservador");                
         rb.setVariableValue("ticket", "10");
         rb.setVariableValue("experiencia", "nenhuma");
@@ -676,9 +643,8 @@ public class RuleFrame extends JFrame {
         traceTextArea.append("\n --- Setting Values for Investimentos BackwardChain Demo ---\n ");
 
         // poderia ser Poupança
-
-        rb.setVariableValue("idade", null);
-        rb.setVariableValue("investimentoType", null);                
+        rb.setVariableValue("investimento", null);                
+        rb.setVariableValue("idade", "0-20");                
         rb.setVariableValue("perfil", "conservador");                        
         rb.setVariableValue("ticket", "10");
         rb.setVariableValue("experiencia", "nenhuma");
@@ -1009,7 +975,7 @@ public class RuleFrame extends JFrame {
         currentRuleBase = investimentos;
         setTitle("Rule Application - Investimentos Tabajara Rule Base");
         switchRuleBase();
-        GoalComboBox.setSelectedItem(((BooleanRuleBase) currentRuleBase).getVariable("perfil"));
+        GoalComboBox.setSelectedItem(((BooleanRuleBase) currentRuleBase).getVariable("investimento"));
     }
     
     /**
