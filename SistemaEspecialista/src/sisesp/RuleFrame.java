@@ -219,7 +219,27 @@ public class RuleFrame extends JFrame {
         RuleVariable risco = new RuleVariable(rb, "risco");
         risco.setLabels("baixo moderado elevado");
         risco.setPromptText("Esta disposto a correr algum risco?");
-
+        
+        //Custo
+        RuleVariable custo = new RuleVariable(rb, "custo");
+        custo.setLabels("baixo moderado elevado");
+        custo.setPromptText("Qual custo esperado para o investimento?");
+        
+        //IR
+        RuleVariable ir = new RuleVariable(rb, "ir");
+        ir.setLabels("sim nao");
+        ir.setPromptText("Incide IR investimento?");
+        
+        //TxAdm
+        RuleVariable txadm = new RuleVariable(rb, "txadm");
+        txadm.setLabels("sim nao");
+        txadm.setPromptText("Existe Taxa Administrativa no investimento?");
+        
+        //iof
+        RuleVariable iof = new RuleVariable(rb, "iof");
+        iof.setLabels("sim nao");
+        iof.setPromptText("Incide IOF investimento?");
+                
         //perfil
         RuleVariable perfil = new RuleVariable(rb, "perfil");
         perfil.setLabels("arrojado moderado conservador");
@@ -238,7 +258,7 @@ public class RuleFrame extends JFrame {
         //valor mensal deposito
         RuleVariable valorMensal = new RuleVariable(rb, "valor-mensal");
         valorMensal.setLabels("pequeno(<1000) medio(<10000) grande(>10000)");        
-        valorMensal.setPromptText("Qual o valor mensal que vc poderá contribuir para seu investimento?");
+        valorMensal.setPromptText("Qual o valor mensal poderá ser investido?");
         
         //liquidez
         RuleVariable liquidez = new RuleVariable(rb, "liquidez");
@@ -256,8 +276,28 @@ public class RuleFrame extends JFrame {
         Condition cLessThan = new Condition("<");
 
         //---------------------------------------------------------------------------------------------------           
+        //----Regras genericas para o Custo Investimento
+        //Elevado
+        Rule CustoElevado = new Rule(rb, "elevado", new Clause[]{
+                                                    new Clause(ir, cEquals, "sim"),             
+                                                    new Clause(txadm, cEquals, "sim"),             
+                                                    new Clause(iof, cEquals, "sim")},
+                                                    new Clause(custo, cEquals, "elevado"));           
         
-               
+        //Moderado
+        Rule CustoModerado = new Rule(rb, "moderado", new Clause[]{
+                                                      new Clause(ir, cEquals, "nao"),             
+                                                      new Clause(txadm, cEquals, "sim"),             
+                                                      new Clause(iof, cEquals, "nao")},
+                                                      new Clause(custo, cEquals, "moderado"));           
+                        
+        //Baixo
+        Rule Baixo = new Rule(rb, "baixo", new Clause[]{
+                                           new Clause(ir, cEquals, "nao"),             
+                                           new Clause(txadm, cEquals, "nao"),             
+                                           new Clause(iof, cEquals, "nao")},
+                                           new Clause(custo, cEquals, "baixo"));           
+                                      
         //----Regras genericas para o Perfis
         //---------------------------------------------------------------------------------------------------
         Rule Conservador = new Rule(rb, "conservador", new Clause[]{
@@ -275,103 +315,108 @@ public class RuleFrame extends JFrame {
                                                         new Clause(experiencia, cEquals, "avancada")},
                                                  new Clause(perfil, cEquals, "arrojado"));                     
         //---------------------------------------------------------------------------------------------------
-                
-
+                    
+        
         //objetivo 
         //---------------------------------------------------------------------------------------------------
         //AquisicaoBens 
         Rule AquisicaoBens = new Rule(rb, "aquisicao-bens", new Clause[]{
                                                                 new Clause(valorMensal, cEquals, "pequeno(<1000)"),
-                                                                new Clause(liquidez, cEquals, "curto-prazo")},                                                                                
+                                                                new Clause(liquidez, cEquals, "curto-prazo"),  
+                                                                new Clause(custo, cEquals, "baixo")},                                                                  
                                                             new Clause(objetivo, cEquals, "aquisicao-bens"));              
                 
         //Aposentadoria 
         Rule Aposentadoria = new Rule(rb, "aposentadoria", new Clause[]{
                                                                 new Clause(valorMensal, cNotEquals, "pequeno(<1000)"),
-                                                                new Clause(liquidez, cEquals, "longo-prazo")},
+                                                                new Clause(liquidez, cEquals, "longo-prazo"),
+                                                                new Clause(custo, cEquals, "moderado")},                                                                  
                                                            new Clause(objetivo, cNotEquals, "aposentadoria"));              
                 
         //AcumularPatrimonio 
         Rule AcumularPatrimonio = new Rule(rb, "acumular-patrimonio", new Clause[]{
                                                                             new Clause(valorMensal, cEquals, "grande(>10000)"),
-                                                                            new Clause(liquidez, cNotEquals, "curto-prazo")},                
+                                                                            new Clause(liquidez, cNotEquals, "curto-prazo"),
+                                                                            new Clause(custo, cNotEquals, "baixo")},                                                                   
                                                                       new Clause(objetivo, cEquals, "acumular-patrimonio"));        
 
         //Viagem
         Rule Viagem = new Rule(rb, "viagem", new Clause[]{
                                                 new Clause(valorMensal, cEquals, "medio(<10000)"),
-                                                new Clause(liquidez, cEquals, "medio-prazo")},                
+                                                new Clause(liquidez, cEquals, "medio-prazo"),
+                                                new Clause(custo, cEquals, "elevado")},                                                                                  
                                              new Clause(objetivo, cEquals, "viagem"));        
 
         //---------------------------------------------------------------------------------------------------
         
+
+
         
         /// Regras referentes ao objetivo rpincipal do sistema
         /// 
         //POUPANÇA
         //---------------------------------------------------------------------------------------------------        
         Rule Poupanca = new Rule(rb, "Popupanca", new Clause[]{
-                                                        new Clause(perfil, cEquals, "conservador"),        
-                                                        new Clause(objetivo, cEquals, "aquisicao-bens"),
-                                                        new Clause(ticket, cEquals, "nenhum")},
+                                                        new Clause(ticket, cEquals, "nenhum"),
+                                                        new Clause(perfil, cEquals, "conservador"),                                                                
+                                                        new Clause(objetivo, cEquals, "aquisicao-bens")},
                                                   new Clause(investimento, cEquals, "Poupanca"));              
         //---------------------------------------------------------------------------------------------------        
         
         // RENDA FIXA
         Rule RendaFixa = new Rule(rb, "Renda-Fixa", new Clause[]{
+                                                        new Clause(ticket, cEquals, "medio(<100)"),            
                                                         new Clause(perfil, cNotEquals, "arrojado"), // diferente de arrojado
-                                                        new Clause(objetivo, cEquals, "acumular-patrimonio"),
-                                                        new Clause(ticket, cEquals, "medio(<100)")},
+                                                        new Clause(objetivo, cEquals, "acumular-patrimonio")},
                                                     new Clause(investimento, cEquals, "Renda-Fixa"));  
         //---------------------------------------------------------------------------------------------------                        
                
         // TESOURO DIRETO
         //---------------------------------------------------------------------------------------------------                
         Rule TesouroDireto = new Rule(rb, "Tesouro-Direto", new Clause[]{
+                                                                new Clause(ticket, cEquals, "pequeno(<=30)"),
                                                                 new Clause(perfil, cNotEquals, "arrojado"), // diferente de arrojado
-                                                                new Clause(objetivo, cEquals, "acumular-patrimonio"),                                                        
-                                                                new Clause(ticket, cEquals, "pequeno(<=30)")},
+                                                                new Clause(objetivo, cEquals, "acumular-patrimonio")},
                                                             new Clause(investimento, cEquals, "Tesouro-Direto"));                        
         //---------------------------------------------------------------------------------------------------                        
         
         //INESTIMENTO CDB
         //---------------------------------------------------------------------------------------------------                
         Rule InvestimentoCDB = new Rule(rb, "Investimento-CDB", new Clause[]{
+                                                                    new Clause(ticket, cEquals, "grande(>100)"),            
                                                                     new Clause(perfil, cNotEquals, "conservador"),  // diferente de conservador
-                                                                    new Clause(objetivo, cEquals, "acumular-patrimonio"),                                                           
-                                                                    new Clause(ticket, cEquals, "grande(>100)")},
+                                                                    new Clause(objetivo, cEquals, "acumular-patrimonio")},
                                                                 new Clause(investimento, cEquals, "Investimento-CDB"));                      
         //---------------------------------------------------------------------------------------------------                        
                         
         //PREVIDENCIA PRIVADA
         //---------------------------------------------------------------------------------------------------                
         Rule PrevidenciaPrivada = new Rule(rb, "Previdencia-Privada", new Clause[]{
+                                                                            new Clause(ticket, cEquals, "pequeno(<=30)"),            
                                                                             new Clause(perfil, cNotEquals, "conservador"), // diferente de conservador
-                                                                            new Clause(objetivo, cEquals, "aposentadoria"),                                                            
-                                                                            new Clause(ticket, cEquals, "pequeno(<=30)")},
+                                                                            new Clause(objetivo, cEquals, "aposentadoria")},
                                                                       new Clause(investimento, cEquals, "Previdencia-Privada"));                   
         //---------------------------------------------------------------------------------------------------                
                 
         //MERCADO DE AÇÕES
         //---------------------------------------------------------------------------------------------------                        
         Rule MercadoAcoes = new Rule(rb, "Mercado-Acoes", new Clause[]{
+                                                                new Clause(ticket, cEquals, "medio(<100)"),            
                                                                 new Clause(perfil, cEquals, "arrojado"),
-                                                                new Clause(objetivo, cNotEquals, "aposentadoria"),
-                                                                new Clause(ticket, cEquals, "medio(<100)")},
+                                                                new Clause(objetivo, cNotEquals, "aposentadoria")},
                                                           new Clause(investimento, cEquals, "Mercado-Acoes"));                           
         //---------------------------------------------------------------------------------------------------                        
                                 
         //DOLAR
         //---------------------------------------------------------------------------------------------------                        
         Rule Dolar = new Rule(rb, "Dolar", new Clause[]{
+                                                new Clause(ticket, cEquals, "grande(>100)"),            
                                                 new Clause(perfil, cEquals, "arrojado"),
-                                                new Clause(objetivo, cEquals, "viagem"),
-                                                new Clause(ticket, cEquals, "grande(>100)")},
+                                                new Clause(objetivo, cEquals, "viagem"),},
                                            new Clause(investimento, cEquals, "Dolar"));    
         //---------------------------------------------------------------------------------------------------                        
     }
         
-
     //adicionado
     private void demoInvestimentosFC(BooleanRuleBase rb) {
         traceTextArea.append("\n --- Setting Values for Investimentos ForwardChain Demo ---\n ");
