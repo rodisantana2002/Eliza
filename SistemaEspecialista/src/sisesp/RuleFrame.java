@@ -361,16 +361,15 @@ public class RuleFrame extends JFrame {
                                                         new Clause(perfil, cEquals, "conservador"),                                                                
                                                         new Clause(objetivo, cEquals, "aquisicao-bens")},
                                                   new Clause(investimento, cEquals, "Poupanca"));              
-        //---------------------------------------------------------------------------------------------------        
-        
+        //---------------------------------------------------------------------------------------------------                       
         // RENDA FIXA
+        //---------------------------------------------------------------------------------------------------                       
         Rule RendaFixa = new Rule(rb, "Renda-Fixa", new Clause[]{
                                                         new Clause(ticket, cEquals, "medio(<100)"),            
                                                         new Clause(perfil, cNotEquals, "arrojado"), // diferente de arrojado
                                                         new Clause(objetivo, cEquals, "acumular-patrimonio")},
                                                     new Clause(investimento, cEquals, "Renda-Fixa"));  
-        //---------------------------------------------------------------------------------------------------                        
-               
+        //---------------------------------------------------------------------------------------------------                                       
         // TESOURO DIRETO
         //---------------------------------------------------------------------------------------------------                
         Rule TesouroDireto = new Rule(rb, "Tesouro-Direto", new Clause[]{
@@ -378,8 +377,7 @@ public class RuleFrame extends JFrame {
                                                                 new Clause(perfil, cNotEquals, "arrojado"), // diferente de arrojado
                                                                 new Clause(objetivo, cEquals, "acumular-patrimonio")},
                                                             new Clause(investimento, cEquals, "Tesouro-Direto"));                        
-        //---------------------------------------------------------------------------------------------------                        
-        
+        //---------------------------------------------------------------------------------------------------                                
         //INESTIMENTO CDB
         //---------------------------------------------------------------------------------------------------                
         Rule InvestimentoCDB = new Rule(rb, "Investimento-CDB", new Clause[]{
@@ -387,8 +385,7 @@ public class RuleFrame extends JFrame {
                                                                     new Clause(perfil, cNotEquals, "conservador"),  // diferente de conservador
                                                                     new Clause(objetivo, cEquals, "acumular-patrimonio")},
                                                                 new Clause(investimento, cEquals, "Investimento-CDB"));                      
-        //---------------------------------------------------------------------------------------------------                        
-                        
+        //---------------------------------------------------------------------------------------------------                                                
         //PREVIDENCIA PRIVADA
         //---------------------------------------------------------------------------------------------------                
         Rule PrevidenciaPrivada = new Rule(rb, "Previdencia-Privada", new Clause[]{
@@ -396,8 +393,7 @@ public class RuleFrame extends JFrame {
                                                                             new Clause(perfil, cNotEquals, "conservador"), // diferente de conservador
                                                                             new Clause(objetivo, cEquals, "aposentadoria")},
                                                                       new Clause(investimento, cEquals, "Previdencia-Privada"));                   
-        //---------------------------------------------------------------------------------------------------                
-                
+        //---------------------------------------------------------------------------------------------------                                
         //MERCADO DE AÇÕES
         //---------------------------------------------------------------------------------------------------                        
         Rule MercadoAcoes = new Rule(rb, "Mercado-Acoes", new Clause[]{
@@ -405,8 +401,7 @@ public class RuleFrame extends JFrame {
                                                                 new Clause(perfil, cEquals, "arrojado"),
                                                                 new Clause(objetivo, cNotEquals, "aposentadoria")},
                                                           new Clause(investimento, cEquals, "Mercado-Acoes"));                           
-        //---------------------------------------------------------------------------------------------------                        
-                                
+        //---------------------------------------------------------------------------------------------------                                                        
         //DOLAR
         //---------------------------------------------------------------------------------------------------                        
         Rule Dolar = new Rule(rb, "Dolar", new Clause[]{
