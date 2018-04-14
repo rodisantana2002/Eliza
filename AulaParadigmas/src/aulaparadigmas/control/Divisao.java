@@ -5,6 +5,7 @@
  */
 package aulaparadigmas.control;
 
+import aulaparadigmas.core.Operador;
 import aulaparadigmas.core.Component;
 import java.util.List;
 

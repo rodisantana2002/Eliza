@@ -3,9 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package aulaparadigmas.control;
+package aulaparadigmas.core;
 
-import aulaparadigmas.core.Component;
 import java.util.List;
 
 /**
@@ -24,11 +23,15 @@ public abstract class Operador implements Component{
     }
 
     public String toString(){
-        StringBuilder strExpressao = new StringBuilder(" ( ");
+        StringBuilder strExpressao = new StringBuilder(" (");
         strExpressao.append(getSimbolo() + " ");
+        int itens =(components.size()-1);
+        
         for(Component component : components){
             strExpressao.append(component.toString());
-            strExpressao.append(" ");
+            if (components.indexOf(component) < itens){
+                strExpressao.append(" ");                
+            }
         }
         strExpressao.append(") ");
         return strExpressao.toString();

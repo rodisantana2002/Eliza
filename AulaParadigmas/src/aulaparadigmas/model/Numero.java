@@ -5,7 +5,7 @@
  */
 package aulaparadigmas.model;
 
-import aulaparadigmas.model.Operando;
+import aulaparadigmas.core.Operando;
 
 /**
  *

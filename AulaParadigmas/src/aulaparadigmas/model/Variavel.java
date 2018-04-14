@@ -5,6 +5,8 @@
  */
 package aulaparadigmas.model;
 
+import aulaparadigmas.core.Operando;
+
 /**
  *
  * @author rodolfosmac

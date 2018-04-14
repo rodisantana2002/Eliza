@@ -49,6 +49,5 @@ public class AulaParadigmas {
         Component c7 = new Adicao(listaAdicao);        
         System.out.println(c7.toString());
         System.out.println(c7.avaliar());        
-    }
-    
+    }    
 }
