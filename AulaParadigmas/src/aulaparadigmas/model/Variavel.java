@@ -13,11 +13,7 @@ import aulaparadigmas.core.Operando;
  */
 public class Variavel extends Operando {
     private String nome; 
-    
-    public Variavel(double valor) {
-        super(valor);
-    }
-    
+        
     public Variavel(String nome, double valor){
         super(valor);
         this.nome = nome;
