@@ -3,13 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package aulaparadigmas.core;
+package composite.model;
+
+import composite.core.Operando;
 
 /**
  *
  * @author rodolfosmac
  */
-public interface Component {
-    public double avaliar();
-    public String toString();    
+public class Numero extends Operando{
+    public Numero(double valor){
+        super(valor);
+    }
 }

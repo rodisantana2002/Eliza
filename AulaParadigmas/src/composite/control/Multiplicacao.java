@@ -3,19 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package aulaparadigmas.control;
+package composite.control;
 
-import aulaparadigmas.core.Operador;
-import aulaparadigmas.core.Component;
+import composite.core.Operador;
+import composite.core.Component;
 import java.util.List;
 
 /**
  *
  * @author rodolfosmac
  */
-public class Divisao extends  Operador {
+public class Multiplicacao extends  Operador {
 
-    public Divisao(List<Component> components){
+    public Multiplicacao(List<Component> components){
         super(components);
     }
     
@@ -23,7 +23,7 @@ public class Divisao extends  Operador {
     public double avaliar() {
         double valor = 1;
         for(Component comp: getComponents()){
-            valor /= comp.avaliar();
+            valor *= comp.avaliar();
         }
         
         return valor;
@@ -31,7 +31,6 @@ public class Divisao extends  Operador {
     
     @Override
     public String getSimbolo() {
-        return "/";
+        return "*";
     }
-    
 }

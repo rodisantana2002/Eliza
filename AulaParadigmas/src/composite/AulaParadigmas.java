@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package aulaparadigmas;
+package composite;
 
-import aulaparadigmas.control.Adicao;
-import aulaparadigmas.control.Multiplicacao;
-import aulaparadigmas.core.Component;
-import aulaparadigmas.model.Numero;
-import aulaparadigmas.model.Variavel;
+import composite.control.Adicao;
+import composite.control.Multiplicacao;
+import composite.core.Component;
+import composite.model.Numero;
+import composite.model.Variavel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +30,7 @@ public class AulaParadigmas {
         Component c1 = new Variavel("A", 30);
         Component c2 = new Numero(30);
         Component c3 = new Numero(15);
-        
+                                                                                                                                                                                    
         listaMultip.add(c1);
         listaMultip.add(c2);
         listaMultip.add(c3);

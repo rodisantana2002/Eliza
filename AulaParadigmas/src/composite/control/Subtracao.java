@@ -3,27 +3,27 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package aulaparadigmas.control;
+package composite.control;
 
-import aulaparadigmas.core.Operador;
-import aulaparadigmas.core.Component;
+import composite.core.Operador;
+import composite.core.Component;
 import java.util.List;
 
 /**
  *
  * @author rodolfosmac
  */
-public class Multiplicacao extends  Operador {
+public class Subtracao extends  Operador {
 
-    public Multiplicacao(List<Component> components){
+    public Subtracao(List<Component> components){
         super(components);
     }
     
     @Override
     public double avaliar() {
-        double valor = 1;
+        double valor = 0;
         for(Component comp: getComponents()){
-            valor *= comp.avaliar();
+            valor -= comp.avaliar();
         }
         
         return valor;
@@ -31,6 +31,7 @@ public class Multiplicacao extends  Operador {
     
     @Override
     public String getSimbolo() {
-        return "*";
+        return "-";
     }
+    
 }

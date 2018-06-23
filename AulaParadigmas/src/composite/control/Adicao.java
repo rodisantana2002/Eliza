@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package aulaparadigmas.control;
+package composite.control;
 
-import aulaparadigmas.core.Operador;
-import aulaparadigmas.core.Component;
+import composite.core.Operador;
+import composite.core.Component;
 import java.util.List;
 
 /**
