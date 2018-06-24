@@ -8,9 +8,6 @@ package ajustline.control;
 import ajustline.helpers.actions.clsTrataActionsDinamicas;
 import ajustline.helpers.types.clsConstants;
 import ajustline.view.viewPainel;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -24,7 +21,7 @@ public class ctrlPainel implements ActionListener, KeyListener {
     private clsTrataActionsDinamicas mobjAction;
     private viewPainel viewPainel;
     private Thread capThread;
-    private Clipboard clip;
+    private ctrlTextTransfer textTransfer;
     
     public ctrlPainel(){
         iniciarObjeto();        
@@ -47,9 +44,9 @@ public class ctrlPainel implements ActionListener, KeyListener {
                         ciclos++;
                         sleep(5000);
                         viewPainel.atualizarCiclos(String.valueOf(ciclos));
+                        String strTextToConvert = textTransfer.getClipboardContents();
                         
-                        StringSelection ss = new StringSelection ("ciclos" + String.valueOf(ciclos));
-                        clip.setContents (ss, ss);                          
+                        textTransfer.setClipboardContents(strTextToConvert.replaceAll("(\\r\\n)", ""));
                 }                        
 
                 } catch (InterruptedException ex) { }
@@ -67,7 +64,7 @@ public class ctrlPainel implements ActionListener, KeyListener {
     private void iniciarObjeto(){
         viewPainel = new viewPainel();        
         viewPainel.configurarOuvinte(this);                        
-        clip = Toolkit.getDefaultToolkit().getSystemClipboard();
+        textTransfer = new ctrlTextTransfer();
     }
     
     public void finalizarObjeto(){

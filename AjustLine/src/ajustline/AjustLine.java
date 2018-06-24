@@ -31,6 +31,7 @@ public class AjustLine {
         }   
         ctrlPainel painel = new ctrlPainel();
         painel.carregarObjeto();
+
     }
     
 }
