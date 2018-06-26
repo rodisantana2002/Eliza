@@ -44,11 +44,9 @@ public class ctrlPainel implements ActionListener, KeyListener {
                         ciclos++;
                         sleep(5000);
                         viewPainel.atualizarCiclos(String.valueOf(ciclos));
-                        String strTextToConvert = textTransfer.getClipboardContents();
-                        
-                        textTransfer.setClipboardContents(strTextToConvert.replaceAll("(\\r\\n)", ""));
-                }                        
-
+                        String strTextToConvert = textTransfer.getClipboardContents();                        
+                        textTransfer.setClipboardContents(strTextToConvert.replaceAll("\n|\r", " "));
+                    }                        
                 } catch (InterruptedException ex) { }
             }
         };
